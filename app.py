@@ -4,7 +4,6 @@ from db import Schema
 from requests import Request, Session
 from requests.exceptions import ConnectionError, Timeout, TooManyRedirects
 import json
-import pprint
 
 TICKER_API_URL = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest'
 
@@ -23,21 +22,17 @@ session.headers.update(headers)
 
 app = Flask(__name__)             # create an app instance
 
-try:
-    response = session.get(TICKER_API_URL, params=parameters)
-    coins = json.loads(response.text)
-    # print("test")
-    # print(data['data'][0]['quote']['USD']['price'])
-    # pprint.pprint(data)
-    val = coins['data'][0]['quote']['USD']['price']
-    coin = coins['data'][0]['name']
-except (ConnectionError, Timeout, TooManyRedirects) as e:
-    print(e)
+
+response = session.get(TICKER_API_URL, params=parameters)
+coins = json.loads(response.text)
+val = coins['data'][0]['quote']['USD']['price']
+coin = coins['data'][0]['name']
+print(coin)
 
 @app.route("/")
 @app.route("/home")
 def hello():
-    return render_template('home.html', posts=coins)
+    return render_template('home.html', posts=coin)
 
 @app.route("/about")
 def about():
