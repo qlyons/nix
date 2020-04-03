@@ -1,5 +1,5 @@
 # app.py
-from flask import Flask
+from flask import Flask, render_template
 from db import Schema
 from requests import Request, Session
 from requests.exceptions import ConnectionError, Timeout, TooManyRedirects
@@ -23,19 +23,26 @@ session.headers.update(headers)
 
 app = Flask(__name__)             # create an app instance
 
-@app.route("/")                   # at the end point /
+try:
+    response = session.get(TICKER_API_URL, params=parameters)
+    coins = json.loads(response.text)
+    # print("test")
+    # print(data['data'][0]['quote']['USD']['price'])
+    # pprint.pprint(data)
+    val = coins['data'][0]['quote']['USD']['price']
+    coin = coins['data'][0]['name']
+except (ConnectionError, Timeout, TooManyRedirects) as e:
+    print(e)
+
+@app.route("/")
+@app.route("/home")
 def hello():
-    try:
-        response = session.get(TICKER_API_URL, params=parameters)
-        data = json.loads(response.text)
-        #print("test")
-        #print(data['data'][0]['quote']['USD']['price'])
-        #pprint.pprint(data)
-        val = data['data'][0]['quote']['USD']['price']
-        coin = data['data'][0]['name']
-    except (ConnectionError, Timeout, TooManyRedirects) as e:
-        print(e)
-    return str(coin) + ' : ' + str(val)
+    return render_template('home.html', posts=coins)
+
+@app.route("/about")
+def about():
+    return render_template('about.html')
+
 if __name__ == "__main__":        # on running python app.py
     Schema()
     app.run(debug=True)
