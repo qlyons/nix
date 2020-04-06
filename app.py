@@ -22,7 +22,6 @@ session.headers.update(headers)
 
 app = Flask(__name__)             # create an app instance
 
-
 response = session.get(TICKER_API_URL, params=parameters)
 coins = json.loads(response.text)
 val = coins['data'][0]['quote']['USD']['price']
